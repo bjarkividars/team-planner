@@ -1,7 +1,6 @@
 import { deflateSync, inflateSync } from 'fflate';
 import type { RoleKey, LocationKey, SalarySelection, PlacedRole } from '../features/headcount-planner/types';
 import type { RateTier } from './localStorage';
-import { ROLE_CATALOG } from './salaries';
 import { AVAILABLE_ROLES, getSalaryBand } from '../features/headcount-planner/types';
 
 interface CompactState {

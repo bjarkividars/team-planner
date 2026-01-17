@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import {
   PointerSensor,
+  TouchSensor,
   getClientRect,
   pointerWithin,
   rectIntersection,
@@ -66,6 +67,12 @@ export function usePlannerDrag(defaults: Defaults, setPlacedRoles: SetPlacedRole
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
       },
     })
   );

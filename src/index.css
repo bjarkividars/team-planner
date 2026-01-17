@@ -118,8 +118,7 @@
     padding-left: 15px;
     padding-right: 15px;
     user-select: none;
-    background-color: white;
-    border: 1px solid var(--g-88);
+    background-color: var(--g-96);
     border-radius: var(--r-10);
     transition-property: color, background-color, border-color, opacity, box-shadow, transform, filter;
     transition-duration: var(--dur-default);
@@ -128,7 +127,7 @@
 
   .btn-secondary:hover,
   .btn-secondary[data-pressed] {
-    background-color: var(--g-96);
+    background-color: var(--g-92);
   }
 
   .btn-primary {
@@ -178,5 +177,20 @@
     width: 2.5rem;
     height: 2.5rem;
     padding: 0;
+  }
+
+  .btn-sm {
+    height: 2rem;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 767px) {
+    .btn-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: var(--r-10);
+    }
   }
 }

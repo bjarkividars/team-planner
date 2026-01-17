@@ -36,8 +36,8 @@ export function InfoTooltip({ content }: InfoTooltipProps) {
           <Info size={12} />
         </BaseDialog.Trigger>
         <BaseDialog.Portal>
-          <BaseDialog.Backdrop className="fixed inset-0 z-100 bg-black/40 transition-opacity data-starting-style:opacity-0 data-ending-style:opacity-0" />
-          <BaseDialog.Popup className="fixed bottom-4 left-4 right-4 z-101 bg-white rounded-xl p-4 shadow-xl outline-none transition-all data-starting-style:opacity-0 data-starting-style:translate-y-4 data-ending-style:opacity-0 data-ending-style:translate-y-4">
+          <BaseDialog.Backdrop className="fixed inset-0 z-200 transition-opacity data-starting-style:opacity-0 data-ending-style:opacity-0" />
+          <BaseDialog.Popup className="fixed bottom-4 left-4 right-4 z-201 bg-white border border-(--g-88) rounded-xl p-4 shadow-xl outline-none transition-all data-starting-style:opacity-0 data-starting-style:translate-y-4 data-ending-style:opacity-0 data-ending-style:translate-y-4">
             <div className="text-sm text-(--g-12)">{content}</div>
             <BaseDialog.Close
               className="mt-4 w-full py-2 text-sm font-medium text-(--g-20) bg-(--g-96) rounded-lg active:bg-(--g-92) transition-colors"

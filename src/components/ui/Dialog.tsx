@@ -52,18 +52,26 @@ export function DialogContent({ children, className }: DialogContentProps) {
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop
-        className="fixed inset-0 z-[100] bg-black/40 transition-opacity data-[starting-style]:opacity-0 data-[ending-style]:opacity-0"
+        className="fixed inset-0 z-100 bg-black/40 transition-opacity data-starting-style:opacity-0 data-ending-style:opacity-0"
       />
       <BaseDialog.Popup
         className={`
-          fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101]
-          bg-white rounded-xl p-6 shadow-xl min-w-[320px]
-          outline-none
-          transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-95
-          data-[ending-style]:opacity-0 data-[ending-style]:scale-95
+          fixed z-101 bg-white shadow-xl outline-none transition-all
+
+          bottom-0 left-0 right-0 rounded-t-2xl p-6 pb-8
+          max-h-[85vh] overflow-y-auto
+          data-starting-style:translate-y-full
+          data-ending-style:translate-y-full
+
+          md:bottom-auto md:left-1/2 md:right-auto md:top-1/2
+          md:-translate-x-1/2 md:-translate-y-1/2
+          md:rounded-xl md:min-w-[320px] md:max-h-none md:pb-6
+          md:data-starting-style:translate-y-0 md:data-starting-style:opacity-0 md:data-starting-style:scale-95
+          md:data-ending-style:translate-y-0 md:data-ending-style:opacity-0 md:data-ending-style:scale-95
           ${className || ''}
         `}
       >
+        <div className="w-12 h-1 bg-(--g-88) rounded-full mx-auto mb-4 md:hidden" />
         {children}
       </BaseDialog.Popup>
     </BaseDialog.Portal>
@@ -73,7 +81,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
 export function DialogTitle({ children, className }: DialogTitleProps) {
   return (
     <BaseDialog.Title
-      className={`text-lg font-semibold text-[var(--g-12)] mb-4 ${className || ''}`}
+      className={`text-lg font-semibold text-(--g-12) mb-4 ${className || ''}`}
     >
       {children}
     </BaseDialog.Title>
