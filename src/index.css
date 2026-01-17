@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --g-100: #ffffff;
+    --g-96: #f5f6f7;
+    --g-92: #ebedee;
+    --g-88: #e0e3e5;
+    --g-20: #232828;
+    --g-12: #141818;
+    --g-10: #0a1111;
+
+    --color-bg: #ffffff;
+    --color-surface: #f5f6f7;
+    --color-border: #e0e3e5;
+    --color-text: #141818;
+    --color-text-muted: #232828;
+
+    --r-10: 10px;
+
+    --shadow-main-button: 0 8px 20px rgba(0, 0, 0, 0.10);
+
+    --ease-default: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --dur-default: 150ms;
+  }
+
+  html,
+  body {
+    height: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+      "Segoe UI Emoji";
+    color: var(--g-12);
+    background: var(--g-100);
+    position: relative;
+  }
+
+  #root {
+    isolation: isolate;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .transition-default {
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform, filter;
+    transition-duration: var(--dur-default);
+    transition-timing-function: var(--ease-default);
+  }
+
+  .shadow-main-button {
+    box-shadow: var(--shadow-main-button);
+  }
+
+  .rounded-10 {
+    border-radius: var(--r-10);
+  }
+
+  .text-button-2 {
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+
+  .bg-g100 {
+    background-color: var(--g-100);
+  }
+
+  .bg-g96 {
+    background-color: var(--g-96);
+  }
+
+  .bg-g92 {
+    background-color: var(--g-92);
+  }
+
+  .bg-g88 {
+    background-color: var(--g-88);
+  }
+
+  .bg-g10 {
+    background-color: var(--g-10);
+  }
+
+  .border-g88 {
+    border-color: var(--g-88);
+  }
+
+  .text-g12 {
+    color: var(--g-12);
+  }
+}
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    padding-left: 15px;
+    padding-right: 15px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    padding-left: 15px;
+    padding-right: 15px;
+    user-select: none;
+    background-color: white;
+    border: 1px solid var(--g-88);
+    border-radius: var(--r-10);
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform, filter;
+    transition-duration: var(--dur-default);
+    transition-timing-function: var(--ease-default);
+  }
+
+  .btn-secondary:hover,
+  .btn-secondary[data-pressed] {
+    background-color: var(--g-96);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    padding-left: 15px;
+    padding-right: 15px;
+    user-select: none;
+    border-radius: var(--r-10);
+    box-shadow: var(--shadow-main-button);
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform, filter;
+    transition-duration: var(--dur-default);
+    transition-timing-function: var(--ease-default);
+    background-color: var(--g-10);
+    color: white;
+  }
+
+  .btn-primary:hover,
+  .btn-primary[data-pressed] {
+    filter: brightness(1.25);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    padding-left: 15px;
+    padding-right: 15px;
+    user-select: none;
+    border-radius: var(--r-10);
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform, filter;
+    transition-duration: var(--dur-default);
+    transition-timing-function: var(--ease-default);
+    background-color: transparent;
+    color: var(--g-12);
+  }
+
+  .btn-ghost:hover,
+  .btn-ghost[data-pressed] {
+    background-color: var(--g-96);
+  }
+
+  .btn-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+  }
+}

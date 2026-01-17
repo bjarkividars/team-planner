@@ -1,0 +1,132 @@
+import { useRef, useEffect, useState, type InputHTMLAttributes } from 'react';
+
+interface InlineTextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'style' | 'value' | 'onChange'> {
+  value: number;
+  onValueChange: (value: number) => void;
+  minWidth?: number;
+  maxWidth?: number;
+  formatDisplay?: (value: number) => string;
+  parseInput?: (input: string) => number;
+  suffix?: string;
+}
+
+export function InlineTextInput({
+  value,
+  onValueChange,
+  minWidth = 20,
+  maxWidth,
+  formatDisplay = (v) => v.toLocaleString('en-US'),
+  parseInput = (s) => parseInt(s.replace(/[^0-9]/g, ''), 10) || 0,
+  suffix,
+  className = '',
+  ...props
+}: InlineTextInputProps) {
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [width, setWidth] = useState(minWidth);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+
+  const displayValue = isEditing ? editValue : formatDisplay(value);
+
+  useEffect(() => {
+    if (measureRef.current) {
+      const measured = measureRef.current.offsetWidth;
+      let newWidth = Math.max(minWidth, measured + 4);
+      if (maxWidth !== undefined) {
+        newWidth = Math.min(maxWidth, newWidth);
+      }
+      setWidth(newWidth);
+    }
+  }, [displayValue, minWidth, maxWidth]);
+
+  const handleFocus = () => {
+    setIsEditing(true);
+    setEditValue(value === 0 ? '' : formatDisplay(value));
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    const parsed = parseInput(editValue);
+    onValueChange(parsed);
+  };
+
+  const formatDigits = (digits: string): string => {
+    if (!digits) return '';
+    const reversed = digits.split('').reverse();
+    const withCommas: string[] = [];
+    for (let i = 0; i < reversed.length; i++) {
+      if (i > 0 && i % 3 === 0) {
+        withCommas.push(',');
+      }
+      withCommas.push(reversed[i]);
+    }
+    return withCommas.reverse().join('');
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const cursorPos = input.selectionStart ?? 0;
+
+    const raw = e.target.value.replace(/[^0-9]/g, '');
+    const formatted = formatDigits(raw);
+
+    const inputValue = e.target.value;
+    const digitsBeforeCursorInInput = inputValue.slice(0, cursorPos).replace(/[^0-9]/g, '').length;
+
+    let newCursor = 0;
+    let digitCount = 0;
+    for (let i = 0; i < formatted.length; i++) {
+      if (digitCount === digitsBeforeCursorInInput) {
+        newCursor = i;
+        break;
+      }
+      if (/[0-9]/.test(formatted[i])) {
+        digitCount++;
+      }
+      newCursor = i + 1;
+    }
+
+    setEditValue(formatted);
+
+    requestAnimationFrame(() => {
+      input.setSelectionRange(newCursor, newCursor);
+    });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      inputRef.current?.blur();
+    }
+    if (e.key === 'Escape') {
+      setEditValue(value.toString());
+      inputRef.current?.blur();
+    }
+  };
+
+  return (
+    <span className="relative inline-flex items-center">
+      <span
+        ref={measureRef}
+        className={`invisible absolute whitespace-pre ${className}`}
+        aria-hidden="true"
+      >
+        {displayValue || ' '}
+      </span>
+      <input
+        ref={inputRef}
+        type="text"
+        inputMode="numeric"
+        value={displayValue}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        className={`bg-transparent border-none outline-none ${className}`}
+        style={{ width }}
+        {...props}
+      />
+      {suffix && <span className="no-underline">{suffix}</span>}
+    </span>
+  );
+}
