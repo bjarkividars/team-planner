@@ -93,7 +93,7 @@ export function MonthColumn({
     >
       <div
         className={`
-          sticky top-0 w-full px-3 pt-2 pb-3 text-xs font-medium z-9 bg-(--color-bg)
+          sticky top-0 w-full px-3 pt-2 pb-3 text-xs font-medium z-10 bg-(--color-bg)
           before:absolute before:top-0 before:bottom-0 before:-left-px before:w-px before:bg-(--color-border)
           after:absolute after:-bottom-px after:-left-px after:-right-px after:h-px after:bg-(--color-border)
           ${isPastRunway ? "text-red-500" : "text-(--color-text-muted)"}

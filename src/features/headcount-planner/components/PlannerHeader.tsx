@@ -75,9 +75,8 @@ export function PlannerHeader() {
   return (
     <header className="sticky top-0 z-50 bg-(--color-bg) px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <h1 className="text-xl md:text-3xl font-semibold text-(--g-12)">
-          <span className="hidden md:inline">Team Planner</span>
-          <span className="md:hidden">Planner</span>
+        <h1 className="hidden md:inline text-xl md:text-3xl font-semibold text-(--g-12)">
+          Team Planner
         </h1>
         <Dialog>
           <DialogTrigger className="md:hidden">

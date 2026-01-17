@@ -2,9 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { MonthColumn } from './MonthColumn';
 import { PlacedRole } from './PlacedRole';
 import { RunwayLine } from './RunwayLine';
+import { CashBalanceChart } from './CashBalanceChart';
 import { usePlannerContext } from '../hooks/usePlannerContext';
 import { COLUMN_WIDTH } from '../types';
 import { HEADER_HEIGHT, ROW_HEIGHT, ROW_GAP } from '../constants';
+import { calculateCashBalanceTimeline } from '../utils/cashBalanceCalculator';
 
 export function MonthGrid() {
   const {
@@ -13,6 +15,9 @@ export function MonthGrid() {
     scrollContainerRef,
     handleScroll,
     runway,
+    financials,
+    cashBalanceChartExpanded,
+    actions: { handleToggleCashBalanceChartExpanded },
   } = usePlannerContext();
 
   const runOutMonth = placedRoles.length > 0 ? runway.runOutMonth : null;
@@ -35,6 +40,19 @@ export function MonthGrid() {
     return map;
   }, [months]);
 
+  const monthlyBalances = useMemo(
+    () => calculateCashBalanceTimeline(
+      placedRoles,
+      financials.fundingAmount,
+      financials.mrr,
+      financials.mrrGrowthRate,
+      financials.otherCosts,
+      financials.otherCostsGrowthRate,
+      months
+    ),
+    [placedRoles, financials, months]
+  );
+
   const rolesWithRows = useMemo(() => {
     const sorted = [...placedRoles].sort((a, b) =>
       a.startMonth.localeCompare(b.startMonth)
@@ -56,7 +74,7 @@ export function MonthGrid() {
     <div className="flex-1 flex flex-col overflow-hidden">
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-auto bg-(--color-bg) flex flex-col"
+        className="flex-1 overflow-auto bg-(--color-bg) flex flex-col scrollbar-hide"
       >
         <div className="relative flex-1" style={{ width: totalWidth, minHeight: rolesMinHeight + HEADER_HEIGHT }}>
           <div className="absolute inset-0 flex">
@@ -77,7 +95,7 @@ export function MonthGrid() {
 
           <RunwayLine runOutMonth={runOutMonth} monthIndexMap={monthIndexMap} />
 
-          <div>
+          <div className="relative">
             {rolesWithRows.map((role) => {
               const monthIndex = monthIndexMap.get(role.startMonth);
               if (monthIndex === undefined) return null;
@@ -93,6 +111,23 @@ export function MonthGrid() {
               );
             })}
           </div>
+        </div>
+
+        <div className="sticky z-20 bottom-0">
+          <div
+            style={{
+              width: totalWidth,
+              height: 32,
+              background: 'linear-gradient(to bottom, transparent, var(--color-bg))',
+            }}
+          />
+          <CashBalanceChart
+            monthlyBalances={monthlyBalances}
+            fundingAmount={financials.fundingAmount}
+            totalWidth={totalWidth}
+            expanded={cashBalanceChartExpanded}
+            onToggleExpanded={handleToggleCashBalanceChartExpanded}
+          />
         </div>
       </div>
     </div>

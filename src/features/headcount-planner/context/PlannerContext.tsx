@@ -88,6 +88,12 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
 
   const { activeDragItem, dndContextProps } = usePlannerDrag(defaults, setPlacedRoles);
 
+  const [cashBalanceChartExpanded, setCashBalanceChartExpanded] = useState(false);
+
+  const handleToggleCashBalanceChartExpanded = useCallback(() => {
+    setCashBalanceChartExpanded(prev => !prev);
+  }, []);
+
   const runway = useMemo(
     () => calculateRunway(placedRoles, fundingAmount, mrr, mrrGrowthRate, otherCosts, otherCostsGrowthRate),
     [placedRoles, fundingAmount, mrr, mrrGrowthRate, otherCosts, otherCostsGrowthRate]
@@ -175,9 +181,11 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
       handleGrowthRateChange,
       handleOtherCostsChange,
       handleOtherCostsGrowthRateChange,
+      handleToggleCashBalanceChartExpanded,
     },
     activeDragItem,
     dndContextProps,
+    cashBalanceChartExpanded,
   };
 
   useEffect(() => {

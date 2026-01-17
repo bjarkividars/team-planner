@@ -26,12 +26,9 @@ export function RolePalette() {
   return (
     <div
       ref={setNodeRef}
-      className={`w-68 bg-[var(--color-surface)] rounded-xl p-4 h-full overflow-y-auto transition-colors ${
-        isOver ? "ring-2 ring-red-400 ring-inset" : ""
-      }`}
+      className={`w-68 bg-[var(--color-surface)] rounded-xl p-4 h-full overflow-y-auto transition-colors ${isOver ? "ring-2 ring-red-400 ring-inset" : ""
+        }`}
     >
-      <h2 className="text-sm font-semibold text-[var(--g-12)] mb-1">Roles</h2>
-      <p className="text-xs text-[var(--g-20)]/60 mb-4">Drag onto timeline</p>
       <Accordion.Root
         multiple
         defaultValue={[...FUNCTION_ORDER]}

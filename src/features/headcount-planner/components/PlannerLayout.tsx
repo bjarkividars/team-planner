@@ -30,7 +30,7 @@ export function PlannerLayout() {
             </div>
 
             <div
-              className="hidden md:block absolute top-0 left-68 bottom-0 w-20 z-10 pointer-events-none"
+              className="hidden md:block absolute top-0 left-68 bottom-0 w-20 z-15 pointer-events-none"
               style={{
                 background:
                   "linear-gradient(to right, var(--color-bg) 0%, var(--color-bg) 20%, transparent 100%)",

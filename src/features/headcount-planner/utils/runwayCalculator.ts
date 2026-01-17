@@ -34,8 +34,8 @@ export function calculateRunway(
   let runOutMonth: string | null = null;
   let profitableMonth: string | null = null;
 
-  let i = 0;
-  while (true) {
+  const maxMonths = 240;
+  for (let i = 0; i < maxMonths; i++) {
     const projectedDate = new Date(startYear, startMonth + i, 1);
     const monthKey = `${projectedDate.getFullYear()}-${String(projectedDate.getMonth() + 1).padStart(2, '0')}`;
 
@@ -55,12 +55,9 @@ export function calculateRunway(
       break;
     }
 
-    if (netCashFlow >= 0 && monthlyCosts > 0) {
+    if (!profitableMonth && netCashFlow >= 0 && monthlyCosts > 0) {
       profitableMonth = monthKey;
-      break;
     }
-
-    i++;
   }
 
   const formatLabel = (monthKey: string | null): string | null => {
