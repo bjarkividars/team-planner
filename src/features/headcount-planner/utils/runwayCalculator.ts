@@ -28,27 +28,46 @@ export function calculateRunway(
 
   const now = new Date();
   const startYear = now.getFullYear();
-  const startMonth = now.getMonth();
+  const startMonthIndex = now.getMonth();
+  const startMonth = startMonthIndex + 1;
+  const startMonthKey = `${startYear}-${String(startMonth).padStart(2, '0')}`;
 
   let cashBalance = fundingAmount;
   let runOutMonth: string | null = null;
   let profitableMonth: string | null = null;
 
-  const maxMonths = 240;
+  const maxMonths = 2400;
+  const salaryDeltaByIndex = new Map<number, number>();
+  let salaryCosts = 0;
+  for (const role of placedRoles) {
+    const monthlySalary = role.salary / 12;
+    if (role.startMonth <= startMonthKey) {
+      salaryCosts += monthlySalary;
+      continue;
+    }
+    const [year, month] = role.startMonth.split('-').map(Number);
+    const monthIndex = (year - startYear) * 12 + (month - startMonth);
+    salaryDeltaByIndex.set(monthIndex, (salaryDeltaByIndex.get(monthIndex) ?? 0) + monthlySalary);
+  }
+
+  let monthlyRevenue = mrr;
+  let otherCostsThisMonth = otherCosts;
+  const revenueGrowthFactor = 1 + mrrGrowthRate;
+  const costGrowthFactor = 1 + otherCostsGrowthRate;
+
   for (let i = 0; i < maxMonths; i++) {
-    const projectedDate = new Date(startYear, startMonth + i, 1);
-    const monthKey = `${projectedDate.getFullYear()}-${String(projectedDate.getMonth() + 1).padStart(2, '0')}`;
+    const salaryDelta = salaryDeltaByIndex.get(i);
+    if (salaryDelta) {
+      salaryCosts += salaryDelta;
+    }
 
-    const salaryCosts = placedRoles
-      .filter(role => role.startMonth <= monthKey)
-      .reduce((sum, role) => sum + role.salary / 12, 0);
-
-    const otherCostsThisMonth = otherCosts * Math.pow(1 + otherCostsGrowthRate, i);
     const monthlyCosts = salaryCosts + otherCostsThisMonth;
-    const monthlyRevenue = mrr * Math.pow(1 + mrrGrowthRate, i);
     const netCashFlow = monthlyRevenue - monthlyCosts;
-
     cashBalance += netCashFlow;
+
+    const year = startYear + Math.floor((startMonthIndex + i) / 12);
+    const month = ((startMonthIndex + i) % 12) + 1;
+    const monthKey = `${year}-${String(month).padStart(2, '0')}`;
 
     if (cashBalance < 0) {
       runOutMonth = monthKey;
@@ -58,6 +77,9 @@ export function calculateRunway(
     if (!profitableMonth && netCashFlow >= 0 && monthlyCosts > 0) {
       profitableMonth = monthKey;
     }
+
+    monthlyRevenue *= revenueGrowthFactor;
+    otherCostsThisMonth *= costGrowthFactor;
   }
 
   const formatLabel = (monthKey: string | null): string | null => {

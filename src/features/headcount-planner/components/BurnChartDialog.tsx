@@ -4,7 +4,8 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { Dialog, DialogContent, DialogTitle, DialogClose } from '../../../components/ui/Dialog';
 import { getMaxTextWidth } from '../../../lib/measureText';
 import { calculateCashBalanceTimeline, type MonthlyBalance } from '../utils/cashBalanceCalculator';
-import { usePlannerContext } from '../hooks/usePlannerContext';
+import { calculateRunway } from '../utils/runwayCalculator';
+import { addMonths, generateMonthRange, getCurrentMonthStart, parseMonthKey } from '../utils/dateUtils';
 import { useScenarioContext } from '../hooks/useScenarioContext';
 import { formatSalary } from '../types';
 
@@ -36,7 +37,6 @@ interface ScenarioBalances {
 export function BurnChartDialog() {
   const [open, setOpen] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
-  const { months } = usePlannerContext();
   const { scenarios, activeIndex, scenarioCount } = useScenarioContext();
 
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(() => new Set([activeIndex]));
@@ -44,7 +44,43 @@ export function BurnChartDialog() {
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
+  const chartMonths = useMemo(() => {
+    if (!open) return [];
+
+    const startDate = getCurrentMonthStart();
+    let latestRunout: Date | null = null;
+
+    for (const scenario of scenarios) {
+      const runway = calculateRunway(
+        scenario.placedRoles,
+        scenario.fundingAmount,
+        scenario.mrr,
+        scenario.mrrGrowthRate,
+        scenario.otherCosts,
+        scenario.otherCostsGrowthRate
+      );
+      if (runway.runOutMonth) {
+        const runOutDate = parseMonthKey(runway.runOutMonth);
+        if (!latestRunout || runOutDate > latestRunout) {
+          latestRunout = runOutDate;
+        }
+      }
+    }
+
+    const defaultEndDate = addMonths(startDate, 120 - 1);
+    const endDate = latestRunout ?? defaultEndDate;
+    const monthCount =
+      (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+      (endDate.getMonth() - startDate.getMonth()) +
+      1;
+
+    const cappedCount = Math.max(1, Math.min(monthCount, 2400));
+    return generateMonthRange(startDate, cappedCount);
+  }, [open, scenarios]);
+
   const allScenarioBalances = useMemo(() => {
+    if (!open) return [];
+
     return scenarios.map((scenario, index): ScenarioBalances => {
       const balances = calculateCashBalanceTimeline(
         scenario.placedRoles,
@@ -53,7 +89,7 @@ export function BurnChartDialog() {
         scenario.mrrGrowthRate,
         scenario.otherCosts,
         scenario.otherCostsGrowthRate,
-        months
+        chartMonths
       );
 
       const filteredBalances: MonthlyBalance[] = [];
@@ -73,7 +109,7 @@ export function BurnChartDialog() {
         filteredBalances,
       };
     });
-  }, [scenarios, months, currentMonth]);
+  }, [open, scenarios, chartMonths, currentMonth]);
 
   const selectedScenarios = useMemo(() => {
     return allScenarioBalances.filter((s) => selectedIndices.has(s.scenarioIndex));
@@ -180,7 +216,9 @@ export function BurnChartDialog() {
     });
   };
 
-  if (unifiedMonths.length === 0 || allScenarioBalances.every((s) => s.balances.length === 0)) {
+  const hasBalances = allScenarioBalances.some((s) => s.balances.length > 0);
+
+  if (open && (unifiedMonths.length === 0 || !hasBalances)) {
     return null;
   }
 

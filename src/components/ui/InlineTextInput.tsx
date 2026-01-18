@@ -1,4 +1,4 @@
-import { useRef, useState, type InputHTMLAttributes } from 'react';
+import { useRef, useState, useEffect, type InputHTMLAttributes } from 'react';
 import { measureTextWidth } from '../../lib/measureText';
 
 interface InlineTextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'style' | 'value' | 'onChange'> {
@@ -25,10 +25,23 @@ export function InlineTextInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [font, setFont] = useState('14px system-ui');
+
+  useEffect(() => {
+    const updateFont = () => {
+      if (inputRef.current) {
+        const computed = getComputedStyle(inputRef.current);
+        setFont(`${computed.fontWeight} ${computed.fontSize} ${computed.fontFamily}`);
+      }
+    };
+    updateFont();
+    window.addEventListener('resize', updateFont);
+    return () => window.removeEventListener('resize', updateFont);
+  }, []);
 
   const displayValue = isEditing ? editValue : formatDisplay(value);
 
-  const measured = measureTextWidth(displayValue || ' ', '14px system-ui');
+  const measured = measureTextWidth(displayValue || ' ', font);
   let width = Math.max(minWidth, measured + 4);
   if (maxWidth !== undefined) {
     width = Math.min(maxWidth, width);

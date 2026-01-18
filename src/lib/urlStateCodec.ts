@@ -152,8 +152,10 @@ export function encodeScenariosState(state: ScenariosState): string {
 export function decodeScenariosState(encoded: string): ScenariosState | null {
   try {
     const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    const padLength = (4 - (base64.length % 4)) % 4;
+    const padded = `${base64}${'='.repeat(padLength)}`;
 
-    const binaryString = atob(base64);
+    const binaryString = atob(padded);
     const bytes = Uint8Array.from(binaryString, (c) => c.charCodeAt(0));
 
     const decompressed = inflateSync(bytes);

@@ -19,47 +19,51 @@ export function calculateCashBalanceTimeline(
 
   const now = new Date();
   const startYear = now.getFullYear();
-  const startMonth = now.getMonth();
+  const startMonth = now.getMonth() + 1;
+  const currentMonthKey = `${startYear}-${String(startMonth).padStart(2, '0')}`;
 
-  const monthIndexMap = new Map<string, number>();
-  for (let i = 0; i < 120; i++) {
-    const projectedDate = new Date(startYear, startMonth + i, 1);
-    const monthKey = `${projectedDate.getFullYear()}-${String(projectedDate.getMonth() + 1).padStart(2, '0')}`;
-    monthIndexMap.set(monthKey, i);
+  const salaryDeltaByMonth = new Map<string, number>();
+  let salaryCosts = 0;
+  for (const role of placedRoles) {
+    const monthlySalary = role.salary / 12;
+    if (role.startMonth < currentMonthKey) {
+      salaryCosts += monthlySalary;
+    } else {
+      salaryDeltaByMonth.set(
+        role.startMonth,
+        (salaryDeltaByMonth.get(role.startMonth) ?? 0) + monthlySalary
+      );
+    }
   }
 
   const result: MonthlyBalance[] = [];
+  let cashBalance = fundingAmount;
 
   for (const monthKey of months) {
-    const i = monthIndexMap.get(monthKey);
+    const [year, month] = monthKey.split('-').map(Number);
+    const monthIndex = (year - startYear) * 12 + (month - startMonth);
 
-    if (i === undefined || i < 0) {
+    if (monthIndex < 0) {
       result.push({ month: monthKey, balance: fundingAmount, burn: 0 });
       continue;
     }
 
-    let cashBalance = fundingAmount;
-    let monthBurn = 0;
-    for (let j = 0; j <= i; j++) {
-      const projectedDate = new Date(startYear, startMonth + j, 1);
-      const projectedMonthKey = `${projectedDate.getFullYear()}-${String(projectedDate.getMonth() + 1).padStart(2, '0')}`;
-
-      const salaryCosts = placedRoles
-        .filter(role => role.startMonth <= projectedMonthKey)
-        .reduce((sum, role) => sum + role.salary / 12, 0);
-
-      const otherCostsThisMonth = otherCosts * Math.pow(1 + otherCostsGrowthRate, j);
-      const monthlyCosts = salaryCosts + otherCostsThisMonth;
-      const monthlyRevenue = mrr * Math.pow(1 + mrrGrowthRate, j);
-      const netCashFlow = monthlyRevenue - monthlyCosts;
-
-      cashBalance += netCashFlow;
-      if (j === i) {
-        monthBurn = monthlyCosts;
-      }
+    const salaryDelta = salaryDeltaByMonth.get(monthKey);
+    if (salaryDelta) {
+      salaryCosts += salaryDelta;
     }
 
-    result.push({ month: monthKey, balance: cashBalance, burn: monthBurn });
+    const otherCostsThisMonth = otherCosts * Math.pow(1 + otherCostsGrowthRate, monthIndex);
+    const monthlyCosts = salaryCosts + otherCostsThisMonth;
+    const monthlyRevenue = mrr * Math.pow(1 + mrrGrowthRate, monthIndex);
+    const netCashFlow = monthlyRevenue - monthlyCosts;
+
+    cashBalance += netCashFlow;
+    result.push({ month: monthKey, balance: cashBalance, burn: monthlyCosts });
+
+    if (cashBalance <= 0) {
+      break;
+    }
   }
 
   return result;

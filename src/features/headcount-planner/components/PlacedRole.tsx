@@ -86,7 +86,7 @@ export function PlacedRole({
       <div
         ref={setNodeRef}
         data-draggable-id={`placed-${placedRole.id}`}
-        className="sticky left-8 px-3 whitespace-nowrap rounded-l-md flex items-start gap-2"
+        className="sticky md:left-12 left-2 px-3 whitespace-nowrap rounded-l-md flex items-start gap-2"
         style={{
           backgroundColor: 'var(--color-surface)',
         }}

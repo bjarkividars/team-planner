@@ -26,12 +26,13 @@ import { AssumptionsContent } from "./AssumptionsContent";
 
 function AssumptionsSummary() {
   const {
-    financials: { fundingAmount, mrr },
+    financials: { fundingAmount, mrr, otherCosts },
     placedRoles,
     runway,
   } = usePlannerContext();
 
   const placedRoleCount = placedRoles.length;
+  const hasCosts = placedRoleCount > 0 || otherCosts > 0;
   const now = new Date();
   const currentMonthKey = `${now.getFullYear()}-${String(
     now.getMonth() + 1
@@ -50,7 +51,7 @@ function AssumptionsSummary() {
   };
 
   let runwayText = "";
-  if (placedRoleCount > 0) {
+  if (hasCosts) {
     if (isUnviable) {
       runwayText = "Unviable";
     } else if (runway.runOutLabel) {
@@ -106,7 +107,7 @@ export function PlannerHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-(--color-bg) px-4 md:px-6 mb-2  flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-(--color-bg) px-4 md:px-6 mb-2  flex items-start md:items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="hidden md:block">
           <AssumptionsContent layout="horizontal" />

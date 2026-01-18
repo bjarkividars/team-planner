@@ -65,7 +65,11 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
         const encoded = encodeScenariosState(state);
         const params = new URLSearchParams();
         params.set('s', encoded);
-        window.location.hash = params.toString();
+        const newHash = params.toString();
+        if (window.location.hash.slice(1) !== newHash) {
+          const nextUrl = `${window.location.pathname}${window.location.search}#${newHash}`;
+          window.history.replaceState(null, '', nextUrl);
+        }
       } catch (err) {
         console.error('Failed to save scenarios state:', err);
       }

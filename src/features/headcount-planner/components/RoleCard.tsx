@@ -1,14 +1,16 @@
 import type { Role, LocationKey } from '../types';
+import type { RateTier } from '../../../lib/localStorage';
 import { getSalaryBand, formatSalary } from '../types';
 import { LOCATIONS } from '../../../lib/salaries';
 
 interface RoleCardProps {
   role: Role;
   location?: LocationKey;
+  rateTier?: RateTier;
   className?: string;
 }
 
-export function RoleCard({ role, location = 'NYC', className = '' }: RoleCardProps) {
+export function RoleCard({ role, location = 'NYC', rateTier = 'default', className = '' }: RoleCardProps) {
   const salaryBand = getSalaryBand(role.id, location);
 
   return (
@@ -25,7 +27,7 @@ export function RoleCard({ role, location = 'NYC', className = '' }: RoleCardPro
             {role.name}
           </div>
           <div className="text-xs text-[var(--g-20)]/70">
-            {formatSalary(salaryBand.default)} • {LOCATIONS[location].label}
+            {formatSalary(salaryBand[rateTier])} • {LOCATIONS[location].label}
           </div>
         </div>
       </div>

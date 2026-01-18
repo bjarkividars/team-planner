@@ -54,7 +54,7 @@ function DesktopScenarioTab({ index }: { index: number }) {
 
   if (isEditing) {
     return (
-      <div className="px-3 py-1.5 text-sm rounded-t-lg flex items-center bg-(--color-bg)">
+      <div className="px-3 py-1.5 text-sm rounded-t-lg flex items-center bg-(--color-bg) relative after:content-[''] after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:bg-(--g-40)">
         <input
           ref={inputRef}
           type="text"
@@ -63,7 +63,7 @@ function DesktopScenarioTab({ index }: { index: number }) {
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
           placeholder={`Scenario ${index + 1}`}
-          className="w-28 px-1 py-0 text-sm bg-transparent border-b border-(--g-60) outline-none"
+          className="w-28 px-1 py-0 text-sm bg-transparent outline-none"
         />
       </div>
     );
@@ -103,7 +103,7 @@ function DesktopScenarioTab({ index }: { index: number }) {
                 }}
                 className="ml-1 w-5 h-5 opacity-0 group-hover:opacity-100 rounded flex items-center justify-center hover:bg-(--g-92) transition-all text-red-500 hover:text-red-600"
               >
-                <X size={14} className="text-(--g-40)" />
+                <X size={14} />
               </span>
             </span>
           )}
@@ -156,10 +156,27 @@ function MobileScenarioTab({ index }: { index: number }) {
     }
   };
 
+  const handleSelect = () => {
+    if (!isActive) {
+      switchScenario(index);
+    }
+  };
+
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleSelect();
+    }
+  };
+
   return (
     <>
-      <button
-        onClick={() => !isActive && switchScenario(index)}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-pressed={isActive}
+        onClick={handleSelect}
+        onKeyDown={handleTabKeyDown}
         className={`chip shrink-0 text-sm ${isActive ? 'chip-active' : ''}`}
       >
         <span>{displayName}</span>
@@ -186,7 +203,7 @@ function MobileScenarioTab({ index }: { index: number }) {
             </MenuContent>
           </Menu>
         )}
-      </button>
+      </div>
 
       <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
         <DialogContent>

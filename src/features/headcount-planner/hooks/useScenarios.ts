@@ -13,9 +13,10 @@ export function useScenarios(initialState: ScenariosState) {
   const addScenario = useCallback(() => {
     if (scenarios.length >= MAX_SCENARIOS) return;
 
-    const sourceScenario = scenarios[0];
+    const sourceScenario = scenarios[activeIndex] ?? scenarios[0];
+    const { name: _, ...rest } = sourceScenario;
     const newScenario: ScenarioData = {
-      ...sourceScenario,
+      ...rest,
       placedRoles: sourceScenario.placedRoles.map((role) => ({
         ...role,
         id: crypto.randomUUID(),
@@ -24,7 +25,7 @@ export function useScenarios(initialState: ScenariosState) {
 
     setScenarios((prev) => [...prev, newScenario]);
     setActiveIndex(scenarios.length);
-  }, [scenarios]);
+  }, [scenarios, activeIndex]);
 
   const switchScenario = useCallback(
     (index: number) => {

@@ -14,7 +14,7 @@ const FUNCTION_ORDER = [
 
 export function RolePalette() {
   const {
-    defaults: { location },
+    defaults: { location, rateTier },
   } = usePlannerContext();
   const { isOver, setNodeRef } = useDroppable({
     id: "role-palette",
@@ -55,6 +55,7 @@ export function RolePalette() {
                   key={role.id}
                   role={role}
                   location={location}
+                  rateTier={rateTier}
                 />
               ))}
             </Accordion.Panel>

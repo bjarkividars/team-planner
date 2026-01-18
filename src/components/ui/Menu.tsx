@@ -143,6 +143,7 @@ export function ClickMenu({ children, trigger, triggerClassName }: ClickMenuProp
       <BaseMenu.Trigger
         className={triggerClassName}
         onMouseDown={handleMouseDown}
+        nativeButton={false}
         render={(props) => (
           <div {...props}>
             {trigger}

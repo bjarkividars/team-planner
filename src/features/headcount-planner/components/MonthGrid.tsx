@@ -14,9 +14,10 @@ export function MonthGrid() {
     scrollContainerRef,
     handleScroll,
     runway,
+    financials,
   } = usePlannerContext();
 
-  const runOutMonth = placedRoles.length > 0 ? runway.runOutMonth : null;
+  const runOutMonth = placedRoles.length > 0 || financials.otherCosts > 0 ? runway.runOutMonth : null;
 
   useEffect(() => {
     const container = scrollContainerRef.current;
