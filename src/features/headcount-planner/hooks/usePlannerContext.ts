@@ -34,7 +34,6 @@ type PlannerActions = {
   handleGrowthRateChange: (rate: number) => void;
   handleOtherCostsChange: (amount: number) => void;
   handleOtherCostsGrowthRateChange: (rate: number) => void;
-  handleToggleCashBalanceChartExpanded: () => void;
 };
 
 export type PlannerContextValue = {
@@ -49,7 +48,6 @@ export type PlannerContextValue = {
   actions: PlannerActions;
   activeDragItem: DragItem | null;
   dndContextProps: DndContextProps;
-  cashBalanceChartExpanded: boolean;
 };
 
 export const PlannerContext = createContext<PlannerContextValue | null>(null);

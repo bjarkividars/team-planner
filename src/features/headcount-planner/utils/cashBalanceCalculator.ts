@@ -3,6 +3,7 @@ import type { PlacedRole } from '../types';
 export interface MonthlyBalance {
   month: string;
   balance: number;
+  burn: number;
 }
 
 export function calculateCashBalanceTimeline(
@@ -33,11 +34,12 @@ export function calculateCashBalanceTimeline(
     const i = monthIndexMap.get(monthKey);
 
     if (i === undefined || i < 0) {
-      result.push({ month: monthKey, balance: fundingAmount });
+      result.push({ month: monthKey, balance: fundingAmount, burn: 0 });
       continue;
     }
 
     let cashBalance = fundingAmount;
+    let monthBurn = 0;
     for (let j = 0; j <= i; j++) {
       const projectedDate = new Date(startYear, startMonth + j, 1);
       const projectedMonthKey = `${projectedDate.getFullYear()}-${String(projectedDate.getMonth() + 1).padStart(2, '0')}`;
@@ -52,9 +54,12 @@ export function calculateCashBalanceTimeline(
       const netCashFlow = monthlyRevenue - monthlyCosts;
 
       cashBalance += netCashFlow;
+      if (j === i) {
+        monthBurn = monthlyCosts;
+      }
     }
 
-    result.push({ month: monthKey, balance: cashBalance });
+    result.push({ month: monthKey, balance: cashBalance, burn: monthBurn });
   }
 
   return result;

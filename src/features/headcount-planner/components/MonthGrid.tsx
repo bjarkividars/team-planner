@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { MonthColumn } from './MonthColumn';
 import { PlacedRole } from './PlacedRole';
 import { RunwayLine } from './RunwayLine';
-import { CashBalanceChart } from './CashBalanceChart';
+import { BurnChartDialog } from './BurnChartDialog';
 import { usePlannerContext } from '../hooks/usePlannerContext';
 import { COLUMN_WIDTH } from '../types';
 import { HEADER_HEIGHT, ROW_HEIGHT, ROW_GAP } from '../constants';
@@ -16,8 +16,6 @@ export function MonthGrid() {
     handleScroll,
     runway,
     financials,
-    cashBalanceChartExpanded,
-    actions: { handleToggleCashBalanceChartExpanded },
   } = usePlannerContext();
 
   const runOutMonth = placedRoles.length > 0 ? runway.runOutMonth : null;
@@ -113,23 +111,13 @@ export function MonthGrid() {
           </div>
         </div>
 
-        <div className="sticky z-20 bottom-0">
-          <div
-            style={{
-              width: totalWidth,
-              height: 32,
-              background: 'linear-gradient(to bottom, transparent, var(--color-bg))',
-            }}
-          />
-          <CashBalanceChart
-            monthlyBalances={monthlyBalances}
-            fundingAmount={financials.fundingAmount}
-            totalWidth={totalWidth}
-            expanded={cashBalanceChartExpanded}
-            onToggleExpanded={handleToggleCashBalanceChartExpanded}
-          />
-        </div>
       </div>
+
+      <BurnChartDialog
+        monthlyBalances={monthlyBalances}
+        placedRoles={placedRoles}
+        fundingAmount={financials.fundingAmount}
+      />
     </div>
   );
 }

@@ -42,6 +42,10 @@
     isolation: isolate;
   }
 
+  [data-base-ui-tooltip-positioner] {
+    z-index: 9999 !important;
+  }
+
   button {
     cursor: pointer;
   }

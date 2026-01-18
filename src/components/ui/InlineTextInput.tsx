@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState, type InputHTMLAttributes } from 'react';
+import { useRef, useState, type InputHTMLAttributes } from 'react';
+import { measureTextWidth } from '../../lib/measureText';
 
 interface InlineTextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'style' | 'value' | 'onChange'> {
   value: number;
@@ -21,24 +22,17 @@ export function InlineTextInput({
   className = '',
   ...props
 }: InlineTextInputProps) {
-  const measureRef = useRef<HTMLSpanElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [width, setWidth] = useState(minWidth);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
 
   const displayValue = isEditing ? editValue : formatDisplay(value);
 
-  useEffect(() => {
-    if (measureRef.current) {
-      const measured = measureRef.current.offsetWidth;
-      let newWidth = Math.max(minWidth, measured + 4);
-      if (maxWidth !== undefined) {
-        newWidth = Math.min(maxWidth, newWidth);
-      }
-      setWidth(newWidth);
-    }
-  }, [displayValue, minWidth, maxWidth]);
+  const measured = measureTextWidth(displayValue || ' ', '14px system-ui');
+  let width = Math.max(minWidth, measured + 4);
+  if (maxWidth !== undefined) {
+    width = Math.min(maxWidth, width);
+  }
 
   const handleFocus = () => {
     setIsEditing(true);
@@ -106,13 +100,6 @@ export function InlineTextInput({
 
   return (
     <span className="relative inline-flex items-center">
-      <span
-        ref={measureRef}
-        className={`invisible absolute whitespace-pre ${className}`}
-        aria-hidden="true"
-      >
-        {displayValue || ' '}
-      </span>
       <input
         ref={inputRef}
         type="text"

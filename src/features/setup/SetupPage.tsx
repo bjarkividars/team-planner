@@ -91,7 +91,7 @@ export function SetupPage() {
                 onValueChange={setFundingAmount}
                 className="hover:underline focus:underline"
                 minWidth={20}
-                maxWidth={180}
+                maxWidth={300}
                 placeholder="0"
                 autoFocus
               />
@@ -106,7 +106,7 @@ export function SetupPage() {
                 onValueChange={setMrr}
                 className="hover:underline focus:underline"
                 minWidth={20}
-                maxWidth={150}
+                maxWidth={300}
                 placeholder="0"
               />
             </span>{" "}
@@ -116,7 +116,7 @@ export function SetupPage() {
               onValueChange={setMrrGrowthRate}
               className="hover:underline focus:underline"
               minWidth={30}
-              maxWidth={60}
+              maxWidth={120}
               formatDisplay={(v) => v.toString()}
               suffix="%"
             />
@@ -131,7 +131,7 @@ export function SetupPage() {
                 onValueChange={setOtherCosts}
                 className="hover:underline focus:underline"
                 minWidth={20}
-                maxWidth={150}
+                maxWidth={300}
                 placeholder="0"
               />
             </span>{" "}
@@ -141,7 +141,7 @@ export function SetupPage() {
               onValueChange={setOtherCostsGrowthRate}
               className="hover:underline focus:underline"
               minWidth={30}
-              maxWidth={60}
+              maxWidth={120}
               formatDisplay={(v) => v.toString()}
               suffix="%"
             />
