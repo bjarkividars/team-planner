@@ -29,6 +29,7 @@ type PlannerActions = {
   handleRemoveRole: (roleId: string) => void;
   handleDuplicateRole: (roleId: string) => void;
   handleAddRole: (roleKey: RoleKey, monthKey: string) => void;
+  handleClearAllRoles: () => void;
   handleFundingChange: (amount: number) => void;
   handleMrrChange: (amount: number) => void;
   handleGrowthRateChange: (rate: number) => void;

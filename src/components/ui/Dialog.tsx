@@ -91,7 +91,7 @@ export function DialogTitle({ children, className }: DialogTitleProps) {
 export function DialogClose({ children, className }: DialogCloseProps) {
   return (
     <BaseDialog.Close
-      className={className}
+      className={`hidden md:inline-flex ${className || ''}`}
       render={(props) => (
         <button {...props} type="button">
           {children}

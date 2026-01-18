@@ -99,9 +99,9 @@ export function PlacedRole({
           </div>
           <div className="text-xs text-(--g-20)/70 flex items-center gap-1 group/menus">
             <Menu>
-              <MenuTrigger className="hover:text-(--g-12) cursor-pointer transition-colors flex items-center gap-0.5">
+              <MenuTrigger className="hover:text-(--g-12) data-pressed:text-(--g-12) cursor-pointer transition-colors flex items-center gap-0.5">
                 {formatSalary(placedRole.salary)}
-                {!isMobile && <span className="w-0 group-hover/card:w-3 group-has-[[data-pressed]]/menus:w-3 overflow-hidden transition-all"><ChevronDown size={12} /></span>}
+                {!isMobile && <span className="w-0 group-hover/card:w-3 group-has-data-pressed/menus:w-3 overflow-hidden transition-all"><ChevronDown size={12} /></span>}
               </MenuTrigger>
               <MenuContent>
                 <MenuItem onClick={() => handleSalarySelect('min')}>
@@ -117,9 +117,9 @@ export function PlacedRole({
             </Menu>
             <span>•</span>
             <Menu>
-              <MenuTrigger className="hover:text-(--g-12) cursor-pointer transition-colors flex items-center gap-0.5">
+              <MenuTrigger className="hover:text-(--g-12) data-pressed:text-(--g-12) cursor-pointer transition-colors flex items-center gap-0.5">
                 {LOCATIONS[placedRole.location].label}
-                {!isMobile && <span className="w-0 group-hover/card:w-3 group-has-[[data-pressed]]/menus:w-3 overflow-hidden transition-all"><ChevronDown size={12} /></span>}
+                {!isMobile && <span className="w-0 group-hover/card:w-3 group-has-data-pressed/menus:w-3 overflow-hidden transition-all"><ChevronDown size={12} /></span>}
               </MenuTrigger>
               <MenuContent>
                 {locationKeys.map((loc) => (

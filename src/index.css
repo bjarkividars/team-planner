@@ -6,6 +6,7 @@
     --g-96: #f5f6f7;
     --g-92: #ebedee;
     --g-88: #e0e3e5;
+    --g-40: #424242;
     --g-20: #232828;
     --g-12: #141818;
     --g-10: #0a1111;
@@ -22,6 +23,10 @@
 
     --ease-default: cubic-bezier(0.2, 0.8, 0.2, 1);
     --dur-default: 150ms;
+  }
+
+  @theme {
+    --breakpoint-xs: 30rem;
   }
 
   html,
@@ -96,6 +101,10 @@
 
   .bg-g88 {
     background-color: var(--g-88);
+  }
+
+  .bg-g40 {
+    background-color: var(--g-40);
   }
 
   .bg-g10 {
@@ -197,6 +206,33 @@
     padding-left: 12px;
     padding-right: 12px;
     font-size: 0.875rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+    transition-property: color, background-color, border-color;
+    transition-duration: var(--dur-default);
+    transition-timing-function: var(--ease-default);
+    background-color: var(--g-96);
+    color: var(--g-20);
+  }
+
+  .chip:hover {
+    background-color: var(--g-92);
+  }
+
+  .chip-active {
+    background-color: var(--g-40);
+    color: white;
+  }
+
+  .chip-active:hover {
+    background-color: var(--g-12);
   }
 
   @media (max-width: 767px) {

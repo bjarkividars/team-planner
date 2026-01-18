@@ -1,10 +1,10 @@
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { PlannerHeader } from "./PlannerHeader";
-import { AssumptionsContent } from "./AssumptionsContent";
 import { RolePalette } from "./RolePalette";
 import { MonthGrid } from "./MonthGrid";
 import { PlannerDragOverlay } from "./PlannerDragOverlay";
 import { DefaultsConfirmationDialog } from "./DefaultsConfirmationDialog";
+import { ScenarioTabs } from "./ScenarioTabs";
 import { usePlannerContext } from "../hooks/usePlannerContext";
 
 export function PlannerLayout() {
@@ -12,17 +12,23 @@ export function PlannerLayout() {
 
   return (
     <DndContext {...dndContextProps}>
-      <div className="h-dvh bg-(--color-bg)">
-        <div className="flex flex-col h-full max-w-[1200px] mx-auto pb-8 pt-4 md:pt-12">
-          <PlannerHeader />
-          <div className="hidden md:block px-6 pb-4">
-            <AssumptionsContent layout="horizontal" />
+      <div className="h-dvh bg-(--color-bg) flex flex-col">
+        <div className="hidden md:block bg-(--g-96)">
+          <div className="max-w-[1600px] mx-auto mt-2">
+            <ScenarioTabs variant="desktop" />
           </div>
+        </div>
+
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-(--color-bg) border-t border-(--g-88) pb-[env(safe-area-inset-bottom)]">
+          <ScenarioTabs variant="mobile" />
+        </div>
+        <div className="flex flex-col flex-1 min-h-0 max-w-[1600px] mx-auto w-full pb-16 md:pb-8 pt-4 md:pt-8">
+          <PlannerHeader />
 
           <div
             className="flex flex-1 min-h-0 pl-2 md:pl-6 pt-2 relative"
             style={{
-              marginRight: "min(0px, calc((1200px - 100vw) / 2))",
+              marginRight: "min(0px, calc((1600px - 100vw) / 2))",
             }}
           >
             <div className="hidden md:block relative z-20 shrink-0">

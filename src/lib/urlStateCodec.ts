@@ -1,9 +1,11 @@
 import { deflateSync, inflateSync } from 'fflate';
-import type { RoleKey, LocationKey, SalarySelection, PlacedRole } from '../features/headcount-planner/types';
-import type { RateTier } from './localStorage';
+import type { RoleKey, LocationKey, SalarySelection } from '../features/headcount-planner/types';
 import { AVAILABLE_ROLES, getSalaryBand } from '../features/headcount-planner/types';
+import type { ScenarioData, ScenariosState } from '../features/headcount-planner/types/scenario';
+import { MAX_SCENARIOS } from '../features/headcount-planner/types/scenario';
 
-interface CompactState {
+interface CompactScenario {
+  n?: string;
   f: number;
   m: number;
   mg: number;
@@ -14,15 +16,10 @@ interface CompactState {
   r: [number, string, number, number][];
 }
 
-export interface EncodableState {
-  fundingAmount: number;
-  mrr: number;
-  mrrGrowthRate: number;
-  otherCosts: number;
-  otherCostsGrowthRate: number;
-  defaultLocation: LocationKey;
-  defaultRateTier: RateTier;
-  placedRoles: PlacedRole[];
+interface CompactMultiScenarioState {
+  v: 2;
+  a: number;
+  s: CompactScenario[];
 }
 
 const ROLE_KEY_INDEX: Record<RoleKey, number> = {
@@ -72,8 +69,8 @@ const SALARY_SELECTION_INDEX: Record<SalarySelection, number> = {
 
 const INDEX_TO_SALARY_SELECTION: SalarySelection[] = ['min', 'default', 'max', 'custom'];
 
-function compactifyState(state: EncodableState): CompactState {
-  return {
+function compactifyScenario(state: ScenarioData): CompactScenario {
+  const compact: CompactScenario = {
     f: state.fundingAmount,
     m: state.mrr,
     mg: Math.round(state.mrrGrowthRate * 100),
@@ -88,10 +85,15 @@ function compactifyState(state: EncodableState): CompactState {
       SALARY_SELECTION_INDEX[role.salarySelection],
     ]),
   };
+  if ('name' in state && state.name) {
+    compact.n = state.name;
+  }
+  return compact;
 }
 
-function expandState(compact: CompactState): EncodableState {
+function expandScenario(compact: CompactScenario, scenarioIndex: number): ScenarioData {
   return {
+    name: compact.n,
     fundingAmount: compact.f,
     mrr: compact.m,
     mrrGrowthRate: compact.mg / 100,
@@ -114,7 +116,7 @@ function expandState(compact: CompactState): EncodableState {
       }
 
       return {
-        id: `${roleKey}-${month}-${index}`,
+        id: `s${scenarioIndex}-${roleKey}-${month}-${index}`,
         roleKey,
         roleName: roleInfo.name,
         roleColor: roleInfo.color,
@@ -128,13 +130,15 @@ function expandState(compact: CompactState): EncodableState {
   };
 }
 
-export function encodeState(state: EncodableState): string {
-  const compact = compactifyState(state);
+export function encodeScenariosState(state: ScenariosState): string {
+  const compact: CompactMultiScenarioState = {
+    v: 2,
+    a: state.activeIndex,
+    s: state.scenarios.map((scenario) => compactifyScenario(scenario)),
+  };
 
   const json = JSON.stringify(compact);
-
   const bytes = new TextEncoder().encode(json);
-
   const compressed = deflateSync(bytes, { level: 9 });
 
   const base64 = btoa(String.fromCharCode(...compressed))
@@ -145,7 +149,7 @@ export function encodeState(state: EncodableState): string {
   return base64;
 }
 
-export function decodeState(encoded: string): EncodableState | null {
+export function decodeScenariosState(encoded: string): ScenariosState | null {
   try {
     const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
 
@@ -153,14 +157,22 @@ export function decodeState(encoded: string): EncodableState | null {
     const bytes = Uint8Array.from(binaryString, (c) => c.charCodeAt(0));
 
     const decompressed = inflateSync(bytes);
-
     const json = new TextDecoder().decode(decompressed);
+    const compact = JSON.parse(json) as CompactMultiScenarioState;
 
-    const compact = JSON.parse(json) as CompactState;
+    if (compact.v !== 2) {
+      return null;
+    }
 
-    return expandState(compact);
+    const scenarios = compact.s
+      .slice(0, MAX_SCENARIOS)
+      .map((s, i) => expandScenario(s, i));
+
+    const activeIndex = Math.max(0, Math.min(compact.a, scenarios.length - 1));
+
+    return { activeIndex, scenarios };
   } catch (err) {
-    console.error('Failed to decode state from URL:', err);
+    console.error('Failed to decode scenarios state from URL:', err);
     return null;
   }
 }

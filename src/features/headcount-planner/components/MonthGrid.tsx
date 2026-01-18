@@ -6,7 +6,6 @@ import { BurnChartDialog } from './BurnChartDialog';
 import { usePlannerContext } from '../hooks/usePlannerContext';
 import { COLUMN_WIDTH } from '../types';
 import { HEADER_HEIGHT, ROW_HEIGHT, ROW_GAP } from '../constants';
-import { calculateCashBalanceTimeline } from '../utils/cashBalanceCalculator';
 
 export function MonthGrid() {
   const {
@@ -15,7 +14,6 @@ export function MonthGrid() {
     scrollContainerRef,
     handleScroll,
     runway,
-    financials,
   } = usePlannerContext();
 
   const runOutMonth = placedRoles.length > 0 ? runway.runOutMonth : null;
@@ -38,19 +36,6 @@ export function MonthGrid() {
     return map;
   }, [months]);
 
-  const monthlyBalances = useMemo(
-    () => calculateCashBalanceTimeline(
-      placedRoles,
-      financials.fundingAmount,
-      financials.mrr,
-      financials.mrrGrowthRate,
-      financials.otherCosts,
-      financials.otherCostsGrowthRate,
-      months
-    ),
-    [placedRoles, financials, months]
-  );
-
   const rolesWithRows = useMemo(() => {
     const sorted = [...placedRoles].sort((a, b) =>
       a.startMonth.localeCompare(b.startMonth)
@@ -69,7 +54,23 @@ export function MonthGrid() {
   const totalWidth = months.length * COLUMN_WIDTH;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden relative">
+      {placedRoles.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div className="text-center px-4">
+            <h2 className="text-2xl font-semibold text-(--g-12) mb-2">
+              Start modeling your team
+            </h2>
+            <p className="text-base text-(--g-40) hidden md:block">
+              Drag a role from the left onto the timeline to see how it affects runway.
+            </p>
+            <p className="text-base text-(--g-40) md:hidden">
+              Tap a month to add a role and see how it affects runway.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-auto bg-(--color-bg) flex flex-col scrollbar-hide"
@@ -113,11 +114,7 @@ export function MonthGrid() {
 
       </div>
 
-      <BurnChartDialog
-        monthlyBalances={monthlyBalances}
-        placedRoles={placedRoles}
-        fundingAmount={financials.fundingAmount}
-      />
+      <BurnChartDialog />
     </div>
   );
 }

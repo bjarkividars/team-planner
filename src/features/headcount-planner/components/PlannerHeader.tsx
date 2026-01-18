@@ -1,9 +1,13 @@
-import { SlidersHorizontal, Check, Share2 } from "lucide-react";
+import { useState } from "react";
+import { SlidersHorizontal, Check, Share2, Trash2 } from "lucide-react";
 import {
   Menu,
   MenuTrigger,
   MenuContent,
   MenuItem,
+  Submenu,
+  SubmenuTrigger,
+  SubmenuContent,
 } from "../../../components/ui/Menu";
 import {
   Dialog,
@@ -15,12 +19,14 @@ import { LOCATIONS } from "../../../lib/salaries";
 import type { RateTier } from "../../../lib/localStorage";
 import { LOCATION_KEYS, RATE_TIER_LABELS } from "../constants";
 import { usePlannerContext } from "../hooks/usePlannerContext";
+import { useScenarioContext } from "../hooks/useScenarioContext";
 import { showSuccessToast } from "../../../lib/toast";
+import { encodeScenariosState } from "../../../lib/urlStateCodec";
 import { AssumptionsContent } from "./AssumptionsContent";
 
 function AssumptionsSummary() {
   const {
-    financials: { fundingAmount },
+    financials: { fundingAmount, mrr },
     placedRoles,
     runway,
   } = usePlannerContext();
@@ -46,38 +52,65 @@ function AssumptionsSummary() {
   let runwayText = "";
   if (placedRoleCount > 0) {
     if (isUnviable) {
-      runwayText = " · Unviable";
+      runwayText = "Unviable";
     } else if (runway.runOutLabel) {
-      runwayText = ` · Runs out ${runway.runOutLabel}`;
+      runwayText = `Runs out ${runway.runOutLabel}`;
     } else if (runway.isProfitable) {
-      runwayText = " · Profitable";
+      runwayText = "Profitable";
     }
   }
 
   return (
-    <span className="btn-secondary btn-sm">
-      {formatCurrency(fundingAmount)} funding{runwayText}
-    </span>
+    <div className="flex flex-col items-start gap-0.5">
+      <span className="btn-secondary btn-sm">
+        {formatCurrency(fundingAmount)} · {formatCurrency(mrr)}/mo
+      </span>
+      {runwayText && (
+        <span className="text-xs text-(--g-40) pl-1 pt-1">{runwayText}</span>
+      )}
+    </div>
   );
 }
 
 export function PlannerHeader() {
   const {
     defaults,
-    actions: { handleDefaultChange },
+    placedRoles,
+    actions: { handleDefaultChange, handleClearAllRoles },
   } = usePlannerContext();
+  const { activeIndex, activeScenario, scenarioCount } = useScenarioContext();
 
-  const handleCopyLink = () => {
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const activeScenarioName = activeScenario.name || `Scenario ${activeIndex + 1}`;
+
+  const handleCopyAllScenarios = () => {
     navigator.clipboard.writeText(window.location.href);
     showSuccessToast("Link copied to clipboard");
   };
 
+  const handleCopyActiveScenario = () => {
+    const singleScenarioState = {
+      activeIndex: 0,
+      scenarios: [activeScenario],
+    };
+    const encoded = encodeScenariosState(singleScenarioState);
+    const url = `${window.location.origin}${window.location.pathname}#s=${encoded}`;
+    navigator.clipboard.writeText(url);
+    showSuccessToast("Link copied to clipboard");
+  };
+
+  const handleClearConfirm = () => {
+    handleClearAllRoles();
+    setShowClearConfirm(false);
+  };
+
   return (
-    <header className="sticky top-0 z-50 bg-(--color-bg) px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-(--color-bg) px-4 md:px-6 mb-2  flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <h1 className="hidden md:inline text-xl md:text-3xl font-semibold text-(--g-12)">
-          Team Planner
-        </h1>
+        <div className="hidden md:block">
+          <AssumptionsContent layout="horizontal" />
+        </div>
         <Dialog>
           <DialogTrigger className="md:hidden">
             <AssumptionsSummary />
@@ -127,6 +160,17 @@ export function PlannerHeader() {
                 </span>
               </MenuItem>
             ))}
+            {placedRoles.length > 0 && (
+              <>
+                <div className="my-1 border-t border-(--g-88)" />
+                <MenuItem onClick={() => setShowClearConfirm(true)}>
+                  <span className="flex items-center gap-2 text-red-500 hover:text-red-600">
+                    <Trash2 size={14} />
+                    <span>Clear all roles</span>
+                  </span>
+                </MenuItem>
+              </>
+            )}
           </MenuContent>
         </Menu>
         <Menu>
@@ -134,10 +178,47 @@ export function PlannerHeader() {
             <Share2 size={20} className="text-(--g-20)" />
           </MenuTrigger>
           <MenuContent>
-            <MenuItem onClick={handleCopyLink}>Copy link</MenuItem>
+            {scenarioCount > 1 ? (
+              <Submenu>
+                <SubmenuTrigger>Copy link</SubmenuTrigger>
+                <SubmenuContent>
+                  <MenuItem onClick={handleCopyAllScenarios}>
+                    All scenarios
+                  </MenuItem>
+                  <MenuItem onClick={handleCopyActiveScenario}>
+                    Only "{activeScenarioName}"
+                  </MenuItem>
+                </SubmenuContent>
+              </Submenu>
+            ) : (
+              <MenuItem onClick={handleCopyAllScenarios}>Copy link</MenuItem>
+            )}
           </MenuContent>
         </Menu>
       </div>
+
+      <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <DialogContent>
+          <DialogTitle>Clear all roles?</DialogTitle>
+          <p className="text-sm text-(--g-40) mb-4">
+            This will remove all {placedRoles.length} role{placedRoles.length !== 1 ? 's' : ''} from your timeline. This action cannot be undone.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button
+              className="btn-ghost btn-sm"
+              onClick={() => setShowClearConfirm(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn-primary btn-sm"
+              onClick={handleClearConfirm}
+            >
+              Clear all roles
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

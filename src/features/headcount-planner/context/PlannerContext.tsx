@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { getSetupConfig, type SetupConfig } from "../../../lib/localStorage";
+import type { SetupConfig } from "../../../lib/localStorage";
 import { useMonthRange } from "../hooks/useMonthRange";
 import { usePlannerDefaults } from "../hooks/usePlannerDefaults";
 import { usePlannerFinancials } from "../hooks/usePlannerFinancials";
@@ -19,50 +19,30 @@ import {
   type SalarySelection,
 } from "../types";
 import { calculateRunway } from "../utils/runwayCalculator";
-import { encodeState, decodeState } from "../../../lib/urlStateCodec";
 import { PlannerContext, type PlannerContextValue } from "../hooks/usePlannerContext";
+import type { ScenarioData } from "../types/scenario";
 
-export function PlannerProvider({ children }: { children: ReactNode }) {
-  const [setupConfig] = useState(() => {
-    const hash = window.location.hash.slice(1);
-    const params = new URLSearchParams(hash);
-    const encoded = params.get('s');
+interface PlannerProviderProps {
+  children: ReactNode;
+  initialScenario: ScenarioData;
+  onScenarioChange: (updates: Partial<ScenarioData>) => void;
+}
 
-    if (encoded) {
-      const decodedState = decodeState(encoded);
-      if (decodedState) {
-        return {
-          setupComplete: true,
-          fundingAmount: decodedState.fundingAmount,
-          mrr: decodedState.mrr,
-          mrrGrowthRate: decodedState.mrrGrowthRate,
-          otherCosts: decodedState.otherCosts,
-          otherCostsGrowthRate: decodedState.otherCostsGrowthRate,
-          defaultLocation: decodedState.defaultLocation,
-          defaultRateTier: decodedState.defaultRateTier,
-          createdAt: new Date().toISOString(),
-        } as SetupConfig;
-      }
-    }
-
-    return getSetupConfig();
-  });
+export function PlannerProvider({ children, initialScenario, onScenarioChange }: PlannerProviderProps) {
+  const [setupConfig] = useState<SetupConfig>(() => ({
+    setupComplete: true,
+    fundingAmount: initialScenario.fundingAmount,
+    mrr: initialScenario.mrr,
+    mrrGrowthRate: initialScenario.mrrGrowthRate,
+    otherCosts: initialScenario.otherCosts,
+    otherCostsGrowthRate: initialScenario.otherCostsGrowthRate,
+    defaultLocation: initialScenario.defaultLocation,
+    defaultRateTier: initialScenario.defaultRateTier,
+    createdAt: new Date().toISOString(),
+  }));
 
   const { months, scrollContainerRef, handleScroll } = useMonthRange();
-  const [placedRoles, setPlacedRoles] = useState<PlacedRole[]>(() => {
-    const hash = window.location.hash.slice(1);
-    const params = new URLSearchParams(hash);
-    const encoded = params.get('s');
-
-    if (encoded) {
-      const decodedState = decodeState(encoded);
-      if (decodedState) {
-        return decodedState.placedRoles;
-      }
-    }
-
-    return [];
-  });
+  const [placedRoles, setPlacedRoles] = useState<PlacedRole[]>(initialScenario.placedRoles);
 
   const {
     defaults,
@@ -145,6 +125,10 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     [defaults]
   );
 
+  const handleClearAllRoles = useCallback(() => {
+    setPlacedRoles([]);
+  }, []);
+
   const value: PlannerContextValue = {
     defaults,
     pendingChange,
@@ -170,6 +154,7 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
       handleRemoveRole,
       handleDuplicateRole,
       handleAddRole,
+      handleClearAllRoles,
       handleFundingChange,
       handleMrrChange,
       handleGrowthRateChange,
@@ -181,29 +166,17 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      try {
-        const encoded = encodeState({
-          fundingAmount,
-          mrr,
-          mrrGrowthRate,
-          otherCosts,
-          otherCostsGrowthRate,
-          defaultLocation: defaults.location,
-          defaultRateTier: defaults.rateTier,
-          placedRoles,
-        });
-
-        const params = new URLSearchParams();
-        params.set('s', encoded);
-        window.location.hash = params.toString();
-      } catch (err) {
-        console.error('Failed to encode state to URL:', err);
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [placedRoles, fundingAmount, mrr, mrrGrowthRate, otherCosts, otherCostsGrowthRate, defaults]);
+    onScenarioChange({
+      fundingAmount,
+      mrr,
+      mrrGrowthRate,
+      otherCosts,
+      otherCostsGrowthRate,
+      defaultLocation: defaults.location,
+      defaultRateTier: defaults.rateTier,
+      placedRoles,
+    });
+  }, [placedRoles, fundingAmount, mrr, mrrGrowthRate, otherCosts, otherCostsGrowthRate, defaults, onScenarioChange]);
 
   return (
     <PlannerContext.Provider value={value}>

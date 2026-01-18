@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSetupConfig, type SetupConfig } from '../lib/localStorage';
-import { decodeState } from '../lib/urlStateCodec';
+import { decodeScenariosState } from '../lib/urlStateCodec';
 
 export function useSetupConfig(pathname?: string) {
   const [config, setConfig] = useState<SetupConfig | null>(null);
@@ -12,17 +12,18 @@ export function useSetupConfig(pathname?: string) {
     const encoded = params.get('s');
 
     if (encoded) {
-      const decodedState = decodeState(encoded);
-      if (decodedState) {
+      const decoded = decodeScenariosState(encoded);
+      if (decoded && decoded.scenarios.length > 0) {
+        const firstScenario = decoded.scenarios[0];
         setConfig({
           setupComplete: true,
-          fundingAmount: decodedState.fundingAmount,
-          mrr: decodedState.mrr,
-          mrrGrowthRate: decodedState.mrrGrowthRate,
-          otherCosts: decodedState.otherCosts,
-          otherCostsGrowthRate: decodedState.otherCostsGrowthRate,
-          defaultLocation: decodedState.defaultLocation,
-          defaultRateTier: decodedState.defaultRateTier,
+          fundingAmount: firstScenario.fundingAmount,
+          mrr: firstScenario.mrr,
+          mrrGrowthRate: firstScenario.mrrGrowthRate,
+          otherCosts: firstScenario.otherCosts,
+          otherCostsGrowthRate: firstScenario.otherCostsGrowthRate,
+          defaultLocation: firstScenario.defaultLocation,
+          defaultRateTier: firstScenario.defaultRateTier,
           createdAt: new Date().toISOString(),
         });
         setIsLoading(false);
