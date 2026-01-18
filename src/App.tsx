@@ -18,10 +18,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="/setup"
-        element={isSetupComplete ? <Navigate to="/" replace /> : <SetupPage />}
-      />
+      <Route path="/setup" element={<SetupPage />} />
       <Route
         path="/"
         element={isSetupComplete ? <HeadcountPlanner /> : <Navigate to="/setup" replace />}

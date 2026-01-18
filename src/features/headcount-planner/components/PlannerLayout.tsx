@@ -12,7 +12,7 @@ export function PlannerLayout() {
 
   return (
     <DndContext {...dndContextProps}>
-      <div className="h-screen bg-(--color-bg)">
+      <div className="h-dvh bg-(--color-bg)">
         <div className="flex flex-col h-full max-w-[1200px] mx-auto pb-8 pt-4 md:pt-12">
           <PlannerHeader />
           <div className="hidden md:block px-6 pb-4">

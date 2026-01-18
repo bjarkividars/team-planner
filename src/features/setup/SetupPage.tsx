@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { InlineTextInput } from "../../components/ui/InlineTextInput";
 import { InlineSelect } from "../../components/ui/InlineSelect";
-import { saveSetupConfig, type RateTier } from "../../lib/localStorage";
+import { saveSetupConfig, getSetupConfig, type RateTier } from "../../lib/localStorage";
 import { LOCATIONS, type LocationKey } from "../../lib/salaries";
 
 const LOCATION_OPTIONS = [
@@ -19,15 +19,44 @@ const RATE_TIER_OPTIONS = [
   { value: "max", label: "above market" },
 ];
 
+function getInitialState() {
+  const existingConfig = getSetupConfig();
+  const searchParams = new URLSearchParams(window.location.search);
+  const fundingParam = searchParams.get('funding');
+
+  let urlFunding: number | null = null;
+  if (fundingParam) {
+    const parsed = parseInt(fundingParam, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      urlFunding = parsed;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete('funding');
+    window.history.replaceState({}, '', url.pathname + url.hash);
+  }
+
+  return {
+    fundingAmount: urlFunding ?? existingConfig?.fundingAmount ?? 0,
+    mrr: existingConfig?.mrr ?? 0,
+    mrrGrowthRate: existingConfig?.mrrGrowthRate ? existingConfig.mrrGrowthRate * 100 : 0,
+    otherCosts: existingConfig?.otherCosts ?? 0,
+    otherCostsGrowthRate: existingConfig?.otherCostsGrowthRate ? existingConfig.otherCostsGrowthRate * 100 : 0,
+    defaultLocation: existingConfig?.defaultLocation ?? "NYC" as LocationKey,
+    defaultRateTier: existingConfig?.defaultRateTier ?? "default" as RateTier,
+    hasUrlFunding: urlFunding !== null,
+  };
+}
+
 export function SetupPage() {
   const navigate = useNavigate();
-  const [fundingAmount, setFundingAmount] = useState<number>(0);
-  const [mrr, setMrr] = useState<number>(0);
-  const [mrrGrowthRate, setMrrGrowthRate] = useState<number>(0);
-  const [otherCosts, setOtherCosts] = useState<number>(0);
-  const [otherCostsGrowthRate, setOtherCostsGrowthRate] = useState<number>(0);
-  const [defaultLocation, setDefaultLocation] = useState<LocationKey>("NYC");
-  const [defaultRateTier, setDefaultRateTier] = useState<RateTier>("default");
+  const [initialState] = useState(getInitialState);
+  const [fundingAmount, setFundingAmount] = useState<number>(initialState.fundingAmount);
+  const [mrr, setMrr] = useState<number>(initialState.mrr);
+  const [mrrGrowthRate, setMrrGrowthRate] = useState<number>(initialState.mrrGrowthRate);
+  const [otherCosts, setOtherCosts] = useState<number>(initialState.otherCosts);
+  const [otherCostsGrowthRate, setOtherCostsGrowthRate] = useState<number>(initialState.otherCostsGrowthRate);
+  const [defaultLocation, setDefaultLocation] = useState<LocationKey>(initialState.defaultLocation);
+  const [defaultRateTier, setDefaultRateTier] = useState<RateTier>(initialState.defaultRateTier);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
