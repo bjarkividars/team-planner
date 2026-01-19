@@ -4,18 +4,20 @@ import { decodeScenariosState } from '../lib/urlStateCodec';
 
 export function useSetupConfig(pathname?: string) {
   const [config, setConfig] = useState<SetupConfig | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [resolvedPath, setResolvedPath] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!pathname) return;
     const hash = window.location.hash.slice(1);
     const params = new URLSearchParams(hash);
     const encoded = params.get('s');
 
+    let nextConfig: SetupConfig | null = null;
     if (encoded) {
       const decoded = decodeScenariosState(encoded);
       if (decoded && decoded.scenarios.length > 0) {
         const firstScenario = decoded.scenarios[0];
-        setConfig({
+        nextConfig = {
           setupComplete: true,
           fundingAmount: firstScenario.fundingAmount,
           mrr: firstScenario.mrr,
@@ -25,16 +27,17 @@ export function useSetupConfig(pathname?: string) {
           defaultLocation: firstScenario.defaultLocation,
           defaultRateTier: firstScenario.defaultRateTier,
           createdAt: new Date().toISOString(),
-        });
-        setIsLoading(false);
-        return;
+        };
       }
     }
 
-    const loadedConfig = getSetupConfig();
-    setConfig(loadedConfig);
-    setIsLoading(false);
+    setTimeout(() => {
+      setConfig(nextConfig ?? getSetupConfig());
+      setResolvedPath(pathname);
+    }, 0);
   }, [pathname]);
+
+  const isLoading = resolvedPath !== pathname;
 
   return {
     config,

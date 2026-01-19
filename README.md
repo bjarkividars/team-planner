@@ -22,6 +22,7 @@ The plan saves to local storage automatically, so you don't lose your work if yo
 
 ## What's next
 
+- Better support for profitable scenarios. Right now the tool is optimized for runway planning, not modeling growth once you're cash-flow positive.
 - Add options for users to input their own custom roles/salaries. Add in more salary data from more areas.
 - More export options:
   - CSV/XLSX for spreadsheet workflows
