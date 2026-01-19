@@ -23,7 +23,7 @@ export function DefaultsConfirmationDialog() {
             : `Default rate will change to ${RATE_TIER_LABELS[pendingChange?.value as RateTier]}. Should already placed roles also update?`}
         </p>
         <div className="flex gap-3 justify-end">
-          <DialogClose>
+          <DialogClose forceShow>
             <button
               onClick={handleKeepExisting}
               className="px-4 py-2 text-sm font-medium text-[var(--g-20)] hover:bg-[var(--g-88)] rounded-lg transition-colors"
@@ -31,7 +31,7 @@ export function DefaultsConfirmationDialog() {
               Keep as-is
             </button>
           </DialogClose>
-          <DialogClose>
+          <DialogClose forceShow>
             <button
               onClick={handleUpdateAll}
               className="px-4 py-2 text-sm font-medium text-white bg-[var(--g-12)] hover:bg-[var(--g-20)] rounded-lg transition-colors"

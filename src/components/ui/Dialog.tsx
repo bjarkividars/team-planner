@@ -25,6 +25,7 @@ interface DialogTitleProps {
 interface DialogCloseProps {
   children: ReactNode;
   className?: string;
+  forceShow?: boolean;
 }
 
 export function Dialog({ children, open, onOpenChange }: DialogProps) {
@@ -88,10 +89,10 @@ export function DialogTitle({ children, className }: DialogTitleProps) {
   );
 }
 
-export function DialogClose({ children, className }: DialogCloseProps) {
+export function DialogClose({ children, className, forceShow }: DialogCloseProps) {
   return (
     <BaseDialog.Close
-      className={`hidden md:inline-flex ${className || ''}`}
+      className={`${forceShow ? 'inline-flex' : 'hidden md:inline-flex'} ${className || ''}`}
       render={(props) => (
         <button {...props} type="button">
           {children}
